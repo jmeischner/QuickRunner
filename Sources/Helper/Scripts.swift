@@ -5,7 +5,7 @@ public func executeScript(path: String, arguments: [String] = []) -> String {
 
     let task = Process()
     let pipe = Pipe()
-    print("Pfad: \(path)")
+    
     task.arguments = arguments
     task.standardOutput = pipe
 
@@ -31,7 +31,9 @@ public func executeScript(path: String, arguments: [String] = []) -> String {
 
 public func executeScriptInPath(script: String, arguments: [String] = []) -> String {
 
-    let pathToScript = executeScript(path: "/usr/bin/which", arguments: [script])
+    let pathToScriptUnescaped = executeScript(path: "/usr/bin/which", arguments: [script])
+    let pathToScript = pathToScriptUnescaped.trimmingCharacters(in: ["\n"])
+    
     return executeScript(path: pathToScript, arguments: arguments)
 
 }
