@@ -9,6 +9,7 @@ class ExecuteTestsSpec: QuickSpec {
             it("should get executed if it's a swift module directory") {
                 // let result = QuickRunner.execute(inDir: ".")
                 // expect(result).notTo(equal(""))
+                expect(true).to(beTruthy())
             }
         }
     }

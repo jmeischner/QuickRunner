@@ -24,7 +24,8 @@ public func executeScript(path: String, arguments: [String] = []) -> String {
 
         return output!
     } else {
-        return "Another MacOS Version"
+        // Todo: How to write a Unit Test for the #available condition
+        return "A OSX Version smaller than 10.13"
     }
 
 }
@@ -33,11 +34,13 @@ public func executeScriptInPath(script: String, arguments: [String] = []) -> Str
 
     let pathToScriptUnescaped = executeScript(path: "/usr/bin/which", arguments: [script])
     let pathToScript = pathToScriptUnescaped.trimmingCharacters(in: ["\n"])
-    
-    return executeScript(path: pathToScript, arguments: arguments)
+    let testResult = executeScript(path: pathToScript, arguments: arguments)
+
+    return testResult
 
 }
 
+// Todo: Use appropriate Error cases
 enum ScriptExecutionError: Error {
     case errorDuringExecution
 }
