@@ -1,12 +1,14 @@
 import Foundation
 
-public func extractTestsFrom(testOutput: String) -> [TestCase] {
+public func extractTestsFrom(testOutput: String) -> [TestModule] {
 
     let testStrings = extractTestCaseStrings(from: testOutput)
     // print(testOutput)
     let testCases = buildTestCases(testStrings: testStrings)    
     let testCasesWithLines = getTestLines(forTests: testCases, from: testOutput)
-    return extendTestCasesWithResult(tests: testCasesWithLines)
+    let cases = extendTestCasesWithResult(tests: testCasesWithLines)
+
+    return group(testCases: cases)
 
 }
 
@@ -63,4 +65,48 @@ private func extractTestCaseStrings(from: String) -> [String] {
 
 private func getTestCaseFor(line: String, in tests: [TestCase]) -> TestCase? {
     return tests.first(where: { line.contains($0.description) })
+}
+
+private func group(testCases: [TestCase]) -> [TestModule] {
+    
+    let modules = groupModulesFrom(testCases: testCases)
+
+    for module in modules.values {
+        module.testClasses = Array(groupClassesFrom(module: module).values)
+    }
+
+    return Array(modules.values)
+}
+
+private func groupModulesFrom(testCases: [TestCase]) -> [String: TestModule] {
+    let moduleNames = Set(testCases.map { $0.module })
+    
+    var modules: [String: TestModule] = [:]
+
+    for moduleName in moduleNames {
+        modules.updateValue(TestModule(moduleName), forKey: moduleName)
+    }
+
+    for test in testCases {
+        modules[test.module]!.testCases.append(test)
+    }
+
+    return modules
+}
+
+private func groupClassesFrom(module: TestModule) -> [String: TestClass] {
+
+    let classNames = Set(module.testCases.map { $0.testClass })
+    
+    var classes: [String: TestClass] = [:]
+
+    for className in classNames {
+        classes.updateValue(TestClass(className), forKey: className)
+    }
+
+    for test in module.testCases {
+        classes[test.testClass]!.testCases.append(test)
+    }
+
+    return classes
 }

@@ -2,8 +2,8 @@ import Foundation
 import Rainbow
 
 public struct ScriptOutput {
-    let output: String?
-    let error: String?
+    public let output: String?
+    public let error: String?
 }
 
 public func executeScript(path: String, arguments: [String] = []) -> ScriptOutput {
@@ -44,7 +44,7 @@ public func executeScriptInPath(script: String, arguments: [String] = []) -> Scr
     let pathToScriptUnescaped = executeScript(path: "/usr/bin/which", arguments: [script])
 
     if !pathToScriptUnescaped.error!.isEqual("") {
-        print("Script with name: \(script) can not be found with following message: \(pathToScriptUnescaped.error!)")
+        print("Script with name: \(script) can not be found with following message: \(pathToScriptUnescaped.error!)".red)
     } else {
         let pathToScript = pathToScriptUnescaped.output!.trimmingCharacters(in: ["\n"])
         let scriptResult = executeScript(path: pathToScript, arguments: arguments)

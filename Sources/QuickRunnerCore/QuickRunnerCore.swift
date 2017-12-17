@@ -12,12 +12,24 @@ public final class QuickRunner {
     }
 
 
-    public func execute() {
+    public func execute() -> [TestModule] {
         
         FileManager.default.changeCurrentDirectoryPath(directory)
         let testOutput = executeScriptInPath(script: "swift", arguments: ["test"])
         
-        // let tests = extractTestsFrom(testOutput: testOutput)
+        var testResult = ""
+
+        if let testOut = testOutput {
+            if !testOut.error!.isEqual("") {
+                testResult = testOut.error!
+            } else {
+                testResult = testOut.output!
+            }
+        }
+
+        let tests = extractTestsFrom(testOutput: testResult)
+
+        return tests
     }
 
 }
