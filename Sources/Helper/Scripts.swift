@@ -1,13 +1,20 @@
 import Foundation
 import Rainbow
 
-public func executeScript(path: String, arguments: [String] = []) -> String {
+public struct ScriptOutput {
+    let output: String?
+    let error: String?
+}
+
+public func executeScript(path: String, arguments: [String] = []) -> ScriptOutput {
 
     let task = Process()
-    let pipe = Pipe()
+    let pipeStdout = Pipe()
+    let pipeStderr = Pipe()
     
     task.arguments = arguments
-    task.standardOutput = pipe
+    task.standardOutput = pipeStdout
+    task.standardError = pipeStderr
 
     if #available(OSX 10.13, *) {
         task.executableURL = URL(fileURLWithPath: path)
@@ -19,24 +26,32 @@ public func executeScript(path: String, arguments: [String] = []) -> String {
         }
         
         task.waitUntilExit()
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: data, encoding: String.Encoding.utf8)
+        let dataOut = pipeStdout.fileHandleForReading.readDataToEndOfFile()
+        let dataErr = pipeStderr.fileHandleForReading.readDataToEndOfFile()
+        let output = String(data: dataOut, encoding: String.Encoding.utf8)
+        let error = String(data: dataErr, encoding: String.Encoding.utf8)
 
-        return output!
+        return ScriptOutput(output: output, error: error)
     } else {
         // Todo: How to write a Unit Test for the #available condition
-        return "A OSX Version smaller than 10.13"
+        return ScriptOutput(output: nil, error: "A OSX Version smaller than 10.13")
     }
 
 }
 
-public func executeScriptInPath(script: String, arguments: [String] = []) -> String {
+public func executeScriptInPath(script: String, arguments: [String] = []) -> ScriptOutput? {
 
     let pathToScriptUnescaped = executeScript(path: "/usr/bin/which", arguments: [script])
-    let pathToScript = pathToScriptUnescaped.trimmingCharacters(in: ["\n"])
-    let testResult = executeScript(path: pathToScript, arguments: arguments)
 
-    return testResult
+    if !pathToScriptUnescaped.error!.isEqual("") {
+        print("Script with name: \(script) can not be found with following message: \(pathToScriptUnescaped.error!)")
+    } else {
+        let pathToScript = pathToScriptUnescaped.output!.trimmingCharacters(in: ["\n"])
+        let scriptResult = executeScript(path: pathToScript, arguments: arguments)
+        return scriptResult
+    }
+
+    return nil
 
 }
 
