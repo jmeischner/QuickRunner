@@ -17,6 +17,8 @@ private func printTestCase(_ test: TestCase) {
     }
 }
 
+
+// Todo: Use "Commander" swift module from github: https://github.com/kylef/Commander
 let qr = QuickRunner(inDir: ".")
 
 let modules = qr.execute()
