@@ -26,7 +26,7 @@ func printTestCase(_ test: TestCase) {
         failedTests += 1
         print("""
         \(tab(3))\u{2717} \(test.description)
-        \(tab(3))Error: \(test.error!)
+        \(tab(4))Error: \(test.error!)
         """.red)
     }
 }
@@ -51,23 +51,28 @@ func executeTestsIn(directory: String) {
             }
         }
 
-        let completedTests = numberOfTests - failedTests
-
-        print()
-        print("Summary".underline.bold)
-
-        if (completedTests > 0) {
-            print("\u{2714} \(completedTests) completed".green)    
-        }
-
-        if (slowTests > 0) {
-            print("\u{26A0} \(slowTests) slow".yellow)   
-        }
-
-        if (failedTests > 0) {
-            print("\u{2717} \(failedTests) failed".red)    
-        }
+        printSummary()
         
+    }
+}
+
+func printSummary() {
+    
+    let completedTests = numberOfTests - failedTests
+
+    print()
+    print("Summary".underline.bold)
+
+    if (completedTests > 0) {
+        print("\u{2714} \(completedTests) completed".green)    
+    }
+
+    if (slowTests > 0) {
+        print("\u{26A0} \(slowTests) slow".yellow)   
+    }
+
+    if (failedTests > 0) {
+        print("\u{2717} \(failedTests) failed".red)    
     }
 }
 
