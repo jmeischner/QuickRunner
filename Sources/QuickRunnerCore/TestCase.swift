@@ -6,6 +6,7 @@ public class TestCase {
     public let description: String
     public var success: Bool = true
     public var error: String? = nil
+    public var time: Double = 0.0
     
     init(module: String, testClass: String, description: String) {
         self.module = module

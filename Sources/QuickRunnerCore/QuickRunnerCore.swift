@@ -1,4 +1,5 @@
 import Foundation
+import Rainbow
 
 import Helper
 
@@ -12,24 +13,32 @@ public final class QuickRunner {
     }
 
 
-    public func execute() -> [TestModule] {
+    public func execute() -> [TestModule]? {
         
-        FileManager.default.changeCurrentDirectoryPath(directory)
-        let testOutput = executeScriptInPath(script: "swift", arguments: ["test"])
-        
-        var testResult = ""
+        let directoryChanged = FileManager.default.changeCurrentDirectoryPath(directory)
 
-        if let testOut = testOutput {
-            if !testOut.error!.isEqual("") {
-                testResult = testOut.error!
-            } else {
-                testResult = testOut.output!
+        if (directoryChanged) {
+
+            let testOutput = executeScriptInPath(script: "swift", arguments: ["test"])
+            
+            var testResult = ""
+
+            if let testOut = testOutput {
+                if !testOut.error!.isEqual("") {
+                    testResult = testOut.error!
+                } else {
+                    testResult = testOut.output!
+                }
             }
+
+            let tests = extractTestsFrom(testOutput: testResult)
+
+            return tests
+        } else {
+            print("\"\(directory)\" is no valid directory".red)
+            return nil
         }
 
-        let tests = extractTestsFrom(testOutput: testResult)
-
-        return tests
     }
 
 }

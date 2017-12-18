@@ -25,6 +25,8 @@ private func getTestLines(forTests: [TestCase], from: String) -> [TestCase] {
 
 private func extendTestCasesWithResult(tests: [TestCase]) -> [TestCase] {
     for test in tests {
+        test.time = extractTimeFrom(line: test.lines.last!)
+
         if (test.lines.count > 2) {
             test.success = false
             test.error = test.lines[1].components(separatedBy: " failed - ").last!
@@ -32,6 +34,17 @@ private func extendTestCasesWithResult(tests: [TestCase]) -> [TestCase] {
     }
 
     return tests
+}
+
+private func extractTimeFrom(line: String) -> Double {
+    let pat = "\\(\\d*.\\d*\\s"
+    let regex = try! NSRegularExpression(pattern: pat, options: [])
+    let matches = regex.matches(in: line, options: [], range: NSRange(location: 0, length: line.count))
+    let time = matches.map {
+        String(line[Range($0.range, in: line)!].dropFirst().dropLast())
+    }
+    
+    return Double(time.last!)!
 }
 
 private func buildTestCases(testStrings: [String]) -> [TestCase] {

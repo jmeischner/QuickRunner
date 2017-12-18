@@ -1,36 +1,79 @@
 import Foundation
 import QuickRunnerCore
 import Rainbow
+import Commander
 
-private func tab(_ times: Int) -> String {
+var numberOfTests = 0
+var slowTests = 0
+var failedTests = 0
+
+// Idea: Use themes for color sets
+func tab(_ times: Int) -> String {
     return String(repeating: "  ", count: times)
 }
 
-private func printTestCase(_ test: TestCase) {
+func printTestCase(_ test: TestCase) {
+    numberOfTests += 1
     if (test.success) {
-        print("\(tab(2))\u{2714} \(test.description)".green)
+        if (test.time > 0.5) {
+            slowTests += 1
+            print("\(tab(3))\u{2714} \(test.description)".green + " (slow: \(test.time) sec)".yellow)    
+        } else {
+            print("\(tab(3))\u{2714} \(test.description)".green)
+        }
+        
     } else {
+        failedTests += 1
         print("""
-        \(tab(2))\u{2717} \(test.description)
-        \(tab(2))Error: \(test.error!)
+        \(tab(3))\u{2717} \(test.description)
+        \(tab(3))Error: \(test.error!)
         """.red)
     }
 }
 
+// Todo: What if "swift test" is not possible in the given directory
+func executeTestsIn(directory: String) {
+    let qr = QuickRunner(inDir: directory)
 
-// Todo: Use "Commander" swift module from github: https://github.com/kylef/Commander
-let qr = QuickRunner(inDir: ".")
+    let modulesOpt = qr.execute()
 
-let modules = qr.execute()
+    if let modules = modulesOpt {
+        print("Start".underline.bold)
 
-for module in modules {
-    print(module.name.blue)
-    for testClass in module.testClasses {
-        print("\(tab(1))\(testClass.name)".cyan)
+        for module in modules {
+            print("\u{25B8} \(module.name):".bold)
+            for testClass in module.testClasses {
+                print("\(tab(2))\(testClass.name)")
 
-        for testCase in testClass.testCases {
-            printTestCase(testCase)
+                for testCase in testClass.testCases {
+                    printTestCase(testCase)
+                }
+            }
         }
 
+        let completedTests = numberOfTests - failedTests
+
+        print()
+        print("Summary".underline.bold)
+
+        if (completedTests > 0) {
+            print("\u{2714} \(completedTests) completed".green)    
+        }
+
+        if (slowTests > 0) {
+            print("\u{26A0} \(slowTests) slow".yellow)   
+        }
+
+        if (failedTests > 0) {
+            print("\u{2717} \(failedTests) failed".red)    
+        }
+        
     }
 }
+
+// Main Function
+command(
+    Option("path", default: ".", description: "Path to the swift project")
+) { path in 
+    executeTestsIn(directory: path)    
+}.run()
