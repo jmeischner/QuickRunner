@@ -10,7 +10,7 @@ class ScriptHelperClass: QuickSpec {
                 expect(true).to(beTruthy())
             }
 
-            context("Hier ist ein Kontext") {
+            context("this is a context") {
                 it("is false script") {
                     expect(true).to(beFalsy())
                 }    
